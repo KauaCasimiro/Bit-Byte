@@ -16,6 +16,9 @@
 	        case "falling":
 	            state_falling();
 	            break;
+			case "uping":
+				state_ladder();
+				break;
 	    }
 	}
 #endregion STATE_MACHINE
@@ -31,17 +34,31 @@
 				state = "walking";
 			}
 			
-			if (place_meeting(x, y + 1, objWall) && key_jump) {
-				state = "jumping";
+			if (key_jump && !jump_locked && place_meeting(x, y + 1, objWall)) {
+			    state = "jumping";
+			    vspd = -jump_height; // Impulso para cima
+			    jump_locked = true;
 			}
+
 			
-			if (place_meeting(x, y + 1, objPlatform) && key_jump) {
-				state = "jumping";
+			if (key_jump && !jump_locked && place_meeting(x, y + 1, objPlatform)) {
+			    state = "jumping";
+			    vspd = -jump_height; // Impulso para cima
+			    jump_locked = true;
+			}
+
+			
+			if (!key_up) {
+				jump_locked = false;
 			}
 		
 			if (!place_meeting(x, y + 1, objWall) && !place_meeting(x, y + 1, objPlatform)) { 
 				state = "falling";
-			}	
+			}
+			
+			if (place_meeting(x, y + 1, objLadder) && key_up) {
+				state = "uping";
+			}
 		}
 	#endregion IDLE
 
@@ -114,12 +131,18 @@
 				coyote_time--;
 			}
 	
-			if (key_jump && coyote_time > 0) {
-				coyote_time = 0;
-				vspd = 0;
-				vspd -= jump_height;
-				state = "falling";
+			if (coyote_time > 0) {
+			    vspd = -jump_height; // Aplica impulso no pulo coyote
+			    coyote_time = 0;
+				//show_debug_message("Jumping - vspd: " + string(vspd) + " | y: " + string(y));
 			}
+			y += vspd;
+			
+			if (!ground && !platform) {
+			state = "falling";  // Se não há colisão com o chão ou plataforma, muda para o estado de "falling"
+			}
+
+
 		}
 
 	#endregion JUMPING
@@ -166,5 +189,58 @@ function state_falling() {
 
 #endregion FALLING
 
+#region Ladder
+function state_ladder() {
+    controls();
+    gravityRobots();
+    
+    // Controle de movimento horizontal (movimentação na escada)
+    var move = key_right - key_left;
+    hspd = move * 0.5;  // A velocidade horizontal é mais lenta na escada
+    
+    // Controle de movimento vertical (subir/descer escada)
+    var uping = key_down - key_up;
+    vspd = uping;
+    
+    // Exibindo variáveis de debug
+    show_debug_message("hspd: " + string(hspd));  // Movimento horizontal
+    show_debug_message("vspd: " + string(vspd));  // Movimento vertical
+    show_debug_message("x: " + string(x));        // Posição X
+    show_debug_message("y: " + string(y));        // Posição Y
+
+    // Aplicando o movimento horizontal (movimento na escada)
+    if (!place_meeting(x + sign(hspd), y, objLadder) && !place_meeting(x + sign(hspd), y, objWall)) {
+        x += sign(hspd);
+    }
+
+    // Verifique se o personagem ainda está tocando a escada ou plataforma
+    var on_ladder = place_meeting(x, y + 1, objLadder);
+    var on_platform = place_meeting(x, y + 1, objPlatform);
+    
+    if (on_ladder && on_platform) {
+        // Se está tocando a escada mas NÃO está tocando a plataforma, pode subir ou descer
+        if (key_up) {
+            vspd = -1;  // Subir
+        } else if (key_down) {
+            vspd = 1;   // Descer
+        }
+    } else if (on_ladder && on_platform) {
+        // Se está tocando tanto a escada quanto a plataforma, só pode subir
+        vspd = -1;  // Forçar a subir
+    } else {
+        // Caso contrário, volta para o estado idle
+        state = "idle";
+    }
+
+    // Aplicando o movimento vertical (subir ou descer escada)
+    if (!place_meeting(x, y + sign(vspd), objLadder) && !place_meeting(x, y + sign(vspd), objWall)) {
+        y += sign(vspd);
+    }
+
+    // Mostra o estado de movimento
+    show_debug_message("Estado: " + (vspd == 0 ? "idle" : "uping"));
+}
+
+#endregion Ladder
 
 #endregion STATES

@@ -31,12 +31,22 @@
 				state = "walkingMirrored";
 			}
 			
-			if (place_meeting(x, y + 1, objWall) && key_jump) {
-				state = "jumpingMirrored";
+			if (key_jump && !jump_locked && place_meeting(x, y + 1, objWall)) {
+			    state = "jumpingMirrored";
+			    vspd = -jump_height; // Impulso para cima
+			    jump_locked = true;
 			}
+
 			
-			if (place_meeting(x, y + 1, objPlatform) && key_jump) {
-				state = "jumpingMirrored";
+			if (key_jump && !jump_locked && place_meeting(x, y + 1, objPlatform)) {
+			    state = "jumpingMirrored";
+			    vspd = -jump_height; // Impulso para cima
+			    jump_locked = true;
+			}
+
+			
+			if (!key_up) {
+				jump_locked = false;
 			}
 		
 			if (!place_meeting(x, y + 1, objWall) && !place_meeting(x, y + 1, objPlatform)) { 
@@ -121,18 +131,19 @@
 	
 			if (ground || platform) {
 				coyote_time = coyote_time_max;
-				
 			} else {
-				coyote_time --;
+				coyote_time--;
 			}
 	
-			if (key_jump && coyote_time > 0) {
-				coyote_time = 0;
-				vspd = 0;
-				vspd -= jump_height;
-				state = "fallingMirrored";
-				show_debug_message(coyote_time);
+			if (coyote_time > 0) {
+			    vspd = -jump_height; // Aplica impulso no pulo coyote
+			    coyote_time = 0;
+				//show_debug_message("Jumping - vspd: " + string(vspd) + " | y: " + string(y));
+			}
+			y += vspd;
 			
+			if (!ground && !platform) {
+			state = "fallingMirrored";  // Se não há colisão com o chão ou plataforma, muda para o estado de "falling"
 			}
 			
 			

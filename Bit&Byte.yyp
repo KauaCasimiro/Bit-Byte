@@ -39,6 +39,7 @@
   "resources":[
     {"id":{"name":"objBit","path":"objects/objBit/objBit.yy",},},
     {"id":{"name":"objByte","path":"objects/objByte/objByte.yy",},},
+    {"id":{"name":"objLadder","path":"objects/objLadder/objLadder.yy",},},
     {"id":{"name":"objPlatform","path":"objects/objPlatform/objPlatform.yy",},},
     {"id":{"name":"objRobotFather","path":"objects/objRobotFather/objRobotFather.yy",},},
     {"id":{"name":"objWall","path":"objects/objWall/objWall.yy",},},

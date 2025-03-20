@@ -21,6 +21,7 @@
   ],
   "ResourceOrderSettings":[
     {"name":"objByte","order":1,"path":"objects/objByte/objByte.yy",},
+    {"name":"objLadder","order":5,"path":"objects/objLadder/objLadder.yy",},
     {"name":"objPlatform","order":4,"path":"objects/objPlatform/objPlatform.yy",},
     {"name":"objRobotFather","order":3,"path":"objects/objRobotFather/objRobotFather.yy",},
     {"name":"objWall","order":2,"path":"objects/objWall/objWall.yy",},
